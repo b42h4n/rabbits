@@ -4,7 +4,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import miniaudio
 
-BASE = os.path.expanduser("~/zaicy")
+BASE = os.path.expanduser("~/.zaicy")
 
 IMAGES = [
     os.path.join(BASE, f)
@@ -23,25 +23,23 @@ SPAWN_MS = 10
 LIFETIME_MS = 2000
 MAX_WINDOWS = 5000
 
-# --- музыка по кругу ---
 def looped_stream(path):
-    required = yield b""              # прогрев: устройство пришлёт первый запрос
+    required = yield b""             
     while True:
         gen = miniaudio.stream_file(path)
-        next(gen)                     # прогрев вложенного потока
+        next(gen)                   
         while True:
             try:
                 data = gen.send(required)
-            except StopIteration:     # файл закончился, начинаем заново
+            except StopIteration:   
                 break
             required = yield data
 
 stream = looped_stream(AUDIO)
-next(stream)                          # обязательно!
+next(stream)                         
 device = miniaudio.PlaybackDevice()
 device.start(stream)
 
-# --- зайцы ---
 root = tk.Tk()
 root.withdraw()
 
@@ -70,7 +68,7 @@ def spawn():
         y = random.randint(0, max(0, root.winfo_screenheight() - h))
 
         win = tk.Toplevel(root)
-        win.title(f"Заец #{counter}")
+        win.title(f"Rabbit #{counter}")
         win.overrideredirect(True)
         win.geometry(f"{w}x{h}+{x}+{y}")
         win.attributes("-topmost", True)
@@ -80,7 +78,6 @@ def spawn():
 
         win.bind("<Button-1>", lambda e, ww=win: ww.destroy())
 
-        # Каждый заяц исчезает независимо от остальных через 5 секунд
         win.after(LIFETIME_MS, win.destroy)
 
         windows.append(win)
